@@ -1,19 +1,26 @@
 // import { chromium, devices } from 'playwright';
 // import assert from 'node:assert';
 
-var fs = require('fs'),
-    request = require('request');
+const fs = require('fs');
+const axios = require('axios');
 
-var download = function(uri, filename, callback){
-  request.head(uri, function(err, res, body){
-    console.log('content-type:', res.headers['content-type']);
-    console.log('content-length:', res.headers['content-length']);
+/* ============================================================
+  Function: Download Image
+============================================================ */
 
-    request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
-  });
-};
-
-// download('https://www.google.com/images/srpr/logo3w.png', 'google.png', function(){
+const download_image = (url, image_path) =>
+  axios({
+    url,
+    responseType: 'stream',
+  }).then(
+    response =>
+      new Promise<void>((resolve, reject) => {
+        response.data
+          .pipe(fs.createWriteStream(image_path))
+          .on('finish', () => resolve())
+          .on('error', e => reject(e));
+      }),
+  );// download('https://www.google.com/images/srpr/logo3w.png', 'google.png', function(){
 //   console.log('done');
 // });
 
@@ -21,7 +28,7 @@ var download = function(uri, filename, callback){
   // Setup
   const { chromium, devices } = await import("playwright");
 
-  const BASE_URL = 'https://google.com/'
+  const BASE_URL = 'https://www.google.com/'
   const browser = await chromium.launch();
   const context = await browser.newContext(devices['Desktop Chrome']);
   const page = await context.newPage();
@@ -38,9 +45,8 @@ var download = function(uri, filename, callback){
     // const element = await page.locator('.lnXdpd').getAttribute('src')
     // console.log(img);
 
-    download(`${BASE_URL}${img.substring(1)}`, 'google.png', function(){
-  console.log('done');
-});
+    // download(`${BASE_URL}${img.substring(1)}`, 'google.png', function(){
+    download_image(`${BASE_URL}${img.substring(1)}`, 'google.png');
 
 
     
