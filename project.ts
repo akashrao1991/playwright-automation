@@ -29,7 +29,7 @@ const download_image = (url, image_path) =>
   const { chromium, devices } = await import("playwright");
 
   const BASE_URL = 'https://www.google.com/'
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ headless: false});
   const context = await browser.newContext(devices['Desktop Chrome']);
   const page = await context.newPage();
 
